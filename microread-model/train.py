@@ -3,6 +3,8 @@
 import argparse
 import numpy as np
 import spacy
+import os
+import pickle
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import log_loss, accuracy_score
@@ -26,12 +28,23 @@ def generate_model(text_array, label_array, opt):
     return model
 
 def load_training_data(opt):
-    # TODO
-    pass
+    if not os.path.exists(opt.data_path):
+        print("[ERROR] training data does not exist")
+        quit()
+    
+    if not opt.data_path.endswith(".csv"):
+        print("[ERROR] data must be in .csv format")
+        quit()
+        
+    training_data = pd.read_csv(opt.data_path)
+    return np.array(training_data.text), np.array(training_data.label)
 
 def save_model(model, opt):
-    # TODO
-    pass
+    if not os.path.exists(opt.model_path):
+        os.mkdirs(opt.model_path)
+    
+    saved_model = os.path.join(opt.model_path, "microread_model.pkl")
+    pickle.dump(model, open(opt.model_pat, "wb"))
 
 def main():
     # TODO
