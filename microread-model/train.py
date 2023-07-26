@@ -47,7 +47,6 @@ def save_model(model, opt):
     pickle.dump(model, open(opt.model_pat, "wb"))
 
 def main():
-    # TODO
     parser = argparse.ArgumentParser()
     
     parser.add_argument("-n_estimators", type=int, default=1000)
