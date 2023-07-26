@@ -10,3 +10,10 @@ def predict(post, model):
         print('Alignment prediction is town with probability ' + str(prediction[0]))
     else:
         print('Alignment prediction is anti-town with probability ' + str(prediction[1]))
+        
+def main():
+    # TODO
+    pass
+
+if __name__ == '__main__':
+    main()

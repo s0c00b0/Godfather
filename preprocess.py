@@ -2,6 +2,7 @@
 
 import re
 import string
+import numpy as np
 
 def remove_quotes(post):
     # remove outer quote tags
@@ -39,3 +40,13 @@ def preprocess_post(post):
     post = post.strip()
     
     return post
+
+def preprocess_posts(posts):
+    return np.array([preprocess_post(post) for post in posts])
+
+def main():
+    # TODO
+    pass
+
+if __name__ == '__main__':
+    main()
