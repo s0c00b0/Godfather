@@ -15,7 +15,7 @@ BOT_NAME = "Mafia Host"
 
 def scrape(opt):
     op = webdriver.ChromeOptions()
-    op.add_argument('--headless')
+    # op.add_argument('--headless')
     driver = webdriver.Chrome(options=op)
     driver.get("https://www.mafiauniverse.com/forums/")
     
@@ -67,6 +67,7 @@ def scrape(opt):
         base_url = driver.current_url
 
         while not page == end_page:
+            time.sleep(1)
             posts = driver.find_elements(By.CLASS_NAME, "postbitlegacy")
             for post in posts:
                 if post.get_attribute("data-postnumber") == None:

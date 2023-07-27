@@ -1,6 +1,7 @@
 '''Preprocess posts into model input.'''
 
 import argparse
+import os
 import re
 import string
 import numpy as np
@@ -37,6 +38,12 @@ def preprocess_posts(posts):
     return np.array([preprocess_post(post) for post in posts])
 
 def load_data(opt):
+    if not os.path.exists(opt.data_path):
+        print("[ERROR] data does not exist")
+        quit()
+    
+    f = open(opt.data_path, "r")
+    
     # TODO
     pass
 
