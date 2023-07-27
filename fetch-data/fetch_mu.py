@@ -15,7 +15,8 @@ BOT_NAME = "Mafia Host"
 
 def scrape(opt):
     op = webdriver.ChromeOptions()
-    # op.add_argument('--headless')
+    op.add_argument('--headless')
+    op.add_argument("--log-level=3")
     driver = webdriver.Chrome(options=op)
     driver.get("https://www.mafiauniverse.com/forums/")
     
@@ -66,6 +67,8 @@ def scrape(opt):
         end_page = int(driver.find_element(By.CLASS_NAME, "pagination_top").find_element(By.CLASS_NAME, "popupctrl").text[10:])
         base_url = driver.current_url
 
+        alignmentText = ""
+
         while not page == end_page:
             time.sleep(1)
             posts = driver.find_elements(By.CLASS_NAME, "postbitlegacy")
@@ -78,6 +81,16 @@ def scrape(opt):
                 elif username == BOT_NAME:
                     title = post.find_element(By.CLASS_NAME, "bbc_title").text
                     if title == "Game Over":
+                        content = post.find_element(By.CLASS_NAME, "postcontent")
+                        rands = content.find_elements(By.CLASS_NAME, "profile-block")[2].find_element(By.TAG_NAME, "div")
+                        players = rands.find_elements(By.TAG_NAME, "span")
+                        alignmentText = "Alignments\n"
+                        for player in players:
+                            if player.getCssValue("color") == "#339933":
+                                alignmentText += player.text + " | town\n"
+                            else:
+                                alignmentText += player.text + " | scum\n"
+                        
                         post.find_element(By.CLASS_NAME, "multiquote").click()
                         page = end_page - 1
                         print("Done")
@@ -119,6 +132,7 @@ def scrape(opt):
                 prev_next[0].click()
             
         driver.back()
+        file.write(alignmentText + "\n")
         file.write("END_GAME_HERE\n")
         try:
             element_present = EC.presence_of_element_located((By.ID, 'threadlist'))
