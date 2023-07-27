@@ -9,11 +9,14 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.alert import Alert
 
 BOT_NAME = "Mafia Host"
 
 def scrape(opt):
-    driver = webdriver.Chrome()
+    op = webdriver.ChromeOptions()
+    op.add_argument('--headless')
+    driver = webdriver.Chrome(options=op)
     driver.get("https://www.mafiauniverse.com/forums/")
     
     window1 = driver.current_window_handle
@@ -46,6 +49,8 @@ def scrape(opt):
     threads = driver.find_elements(By.CLASS_NAME, "title")
     df = pd.DataFrame(columns=["text", "label"])
 
+    file = open("data.txt", "w", encoding="utf-8")
+
     for i in range(len(threads)):
         thread = threads[i]
         thread.click()
@@ -58,23 +63,69 @@ def scrape(opt):
             quit()
         mod_name = driver.find_element(By.CLASS_NAME, "postbitlegacy").find_element(By.CLASS_NAME, "username").text
             
-        page = 0
+        page = 1
         end_page = int(driver.find_element(By.CLASS_NAME, "pagination_top").find_element(By.CLASS_NAME, "popupctrl").text[10:])
-        
+        base_url = driver.current_url
+
         while not page == end_page:
             posts = driver.find_elements(By.CLASS_NAME, "postbitlegacy")
             for post in posts:
+                if post.get_attribute("data-postnumber") == None:
+                    continue
                 username = post.find_element(By.CLASS_NAME, "username").text
                 if username == mod_name:
                     continue
                 elif username == BOT_NAME:
-                    # TODO
+                    title = post.find_element(By.CLASS_NAME, "bbc_title").text
+                    if title == "Game Over":
+                        post.find_element(By.CLASS_NAME, "multiquote").click()
+                        page = end_page - 1
+                        print("Done")
+                        break
+
                     pass
                 else:
                     multiquote = post.find_element(By.CLASS_NAME, "multiquote")
                     multiquote.click()
+            driver.find_elements(By.CLASS_NAME, "isuser")[0].find_elements(By.TAG_NAME, "a")[0].click()
+            try:
+                element_present = EC.presence_of_element_located((By.ID, 'multiquote_more_new'))
+                WebDriverWait(driver, 5).until(element_present)
+            except TimeoutException:
+                print("Timed out waiting for page to load")
+                quit()
+            driver.find_element(By.ID, "multiquote_more_new").click()
+            textarea = driver.find_elements(By.CLASS_NAME, "cke_enable_context_menu")[0]
+            textarea.click()
+            time.sleep(1)
+            
+            data = textarea.get_attribute("value")
+            file.write(data + "\n")
+            driver.find_element(By.ID, "clear-mqs").click()
+            Alert(driver).accept()
+            time.sleep(1)
+            driver.back()
+            try:
+                Alert(driver).accept()
+            except:
+                pass
+            time.sleep(2)
+            try:
+                element_present = EC.presence_of_element_located((By.ID, 'postlist'))
+                WebDriverWait(driver, 5).until(element_present)
+            except TimeoutException:
+                print("Timed out waiting for page to load")
+                quit()
+            page += 1
+            prev_next = driver.find_element(By.ID, "pagination_top").find_elements(By.CLASS_NAME, "prev_next")
+            print(len(prev_next))
+            if len(prev_next) == 2:
+                prev_next[1].click()
+            elif len(prev_next) == 1:
+                prev_next[0].click()
                     
         driver.back()
+        file.write("END_GAME_HERE\n")
         try:
             element_present = EC.presence_of_element_located((By.ID, 'threadlist'))
             WebDriverWait(driver, 3).until(element_present)
@@ -82,6 +133,7 @@ def scrape(opt):
             print("Timed out waiting for page to load")
             quit()
         threads = driver.find_elements(By.CLASS_NAME, "title")
+    file.close()
     
 def main():
     parser = argparse.ArgumentParser()
