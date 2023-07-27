@@ -5,7 +5,7 @@ import os
 import time
 import pandas as pd
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, UnexpectedAlertPresentException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -47,7 +47,6 @@ def scrape(opt):
     window2 = driver.current_window_handle
 
     threads = driver.find_elements(By.CLASS_NAME, "title")
-    df = pd.DataFrame(columns=["text", "label"])
 
     file = open("data.txt", "w", encoding="utf-8")
 
@@ -87,7 +86,9 @@ def scrape(opt):
                 else:
                     multiquote = post.find_element(By.CLASS_NAME, "multiquote")
                     multiquote.click()
-            driver.find_elements(By.CLASS_NAME, "isuser")[0].find_elements(By.TAG_NAME, "a")[0].click()
+            driver.switch_to.window(window1)
+            driver.refresh()
+            time.sleep(1)
             try:
                 element_present = EC.presence_of_element_located((By.ID, 'multiquote_more_new'))
                 WebDriverWait(driver, 5).until(element_present)
@@ -95,35 +96,27 @@ def scrape(opt):
                 print("Timed out waiting for page to load")
                 quit()
             driver.find_element(By.ID, "multiquote_more_new").click()
-            textarea = driver.find_elements(By.CLASS_NAME, "cke_enable_context_menu")[0]
+            textarea = driver.find_element(By.CLASS_NAME, "cke_enable_context_menu")
             textarea.click()
             time.sleep(1)
             
             data = textarea.get_attribute("value")
             file.write(data + "\n")
+            textarea.clear()
             driver.find_element(By.ID, "clear-mqs").click()
+            time.sleep(1)
             Alert(driver).accept()
             time.sleep(1)
-            driver.back()
-            try:
-                Alert(driver).accept()
-            except:
-                pass
-            time.sleep(2)
-            try:
-                element_present = EC.presence_of_element_located((By.ID, 'postlist'))
-                WebDriverWait(driver, 5).until(element_present)
-            except TimeoutException:
-                print("Timed out waiting for page to load")
-                quit()
+            
+            driver.switch_to.window(window2)
             page += 1
             prev_next = driver.find_element(By.ID, "pagination_top").find_elements(By.CLASS_NAME, "prev_next")
-            print(len(prev_next))
+            
             if len(prev_next) == 2:
                 prev_next[1].click()
             elif len(prev_next) == 1:
                 prev_next[0].click()
-                    
+            
         driver.back()
         file.write("END_GAME_HERE\n")
         try:
