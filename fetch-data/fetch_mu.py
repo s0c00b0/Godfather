@@ -43,7 +43,8 @@ def scrape(opt):
     profile_button.click()
     
     driver.switch_to.new_window("tab")
-    driver.get("https://www.mafiauniverse.com/forums/forums/6-Automated-Games")
+    link = "https://www.mafiauniverse.com/forums/forums/6-Automated-Games"
+    driver.get(link)
     
     window2 = driver.current_window_handle
 
@@ -84,19 +85,17 @@ def scrape(opt):
                         content = post.find_element(By.CLASS_NAME, "postcontent")
                         rands = content.find_elements(By.CLASS_NAME, "profile-block")[2].find_element(By.TAG_NAME, "div")
                         players = rands.find_elements(By.TAG_NAME, "span")
-                        alignmentText = "Alignments\n"
+                        alignmentText = "[ALIGNMENT]\n"
                         for player in players:
                             if player.getCssValue("color") == "#339933":
-                                alignmentText += player.text + " | town\n"
+                                alignmentText += "[" + player.text + "=town]\n"
                             else:
-                                alignmentText += player.text + " | scum\n"
-                        
-                        post.find_element(By.CLASS_NAME, "multiquote").click()
+                                alignmentText += "[" + player.text + "=scum]\n"
+                        alignmentText += "[/ALIGNMENT]"
+                        # post.find_element(By.CLASS_NAME, "multiquote").click()
                         page = end_page - 1
                         print("Done")
                         break
-
-                    pass
                 else:
                     multiquote = post.find_element(By.CLASS_NAME, "multiquote")
                     multiquote.click()
@@ -131,7 +130,7 @@ def scrape(opt):
             elif len(prev_next) == 1:
                 prev_next[0].click()
             
-        driver.back()
+        driver.get(link)
         file.write(alignmentText + "\n")
         file.write("END_GAME_HERE\n")
         try:

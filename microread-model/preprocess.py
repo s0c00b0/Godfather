@@ -16,7 +16,7 @@ def remove_quotes(post):
             post = post[:-1 * i - 1]
             break
             
-    post = re.sub('\[QUOTE=.*?\].*\[/QUOTE\]', '', post)
+    post = re.sub('\[QUOTE.*?\].*?\[/QUOTE\]', '', post)
     
     return post
 
@@ -43,6 +43,23 @@ def load_data(opt):
         quit()
     
     f = open(opt.data_path, "r")
+    
+    posts = []
+    current_post = ""
+    nested_quotes = 0
+    
+    for line in f:
+        if line == "\n":
+            continue
+        
+        current_post = current_post + line
+        
+        nested_quotes += len(re.findall("\[QUOTE.*?\]", line))
+        nested_quotes -= len(re.findall("\[/QUOTE\]", line))
+        
+        if nested_quotes == 0:
+            posts.append(current_post)
+            current_post = ""
     
     # TODO
     pass
