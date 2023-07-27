@@ -2,18 +2,38 @@
 
 import argparse
 import os
+import time
+import pandas as pd
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-import pandas as pd
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 BOT_NAME = "Mafia Host"
 
 def scrape(opt):
     driver = webdriver.Chrome()
-    driver.get('https://www.mafiauniverse.com/forums/forums/6-Automated-Games')
+    driver.get("https://www.mafiauniverse.com/forums/")
+    
+    window1 = driver.current_window_handle
+    
+    log_in = driver.find_element(By.CLASS_NAME, "login-window")
+    log_in.click()
+    
+    username_box = driver.find_element(By.NAME, "vb_login_username")
+    username_box.send_keys(opt.username)
+    
+    password_box = driver.find_element(By.NAME, "vb_login_password")
+    password_box.send_keys(opt.password)
+    
+    log_in_button = driver.find_element(By.CLASS_NAME, "loginbutton")
+    log_in_button.click()
+        
+    driver.switch_to.new_window("tab")
+    driver.get("https://www.mafiauniverse.com/forums/forums/6-Automated-Games")
+    
+    window2 = driver.current_window_handle
 
     threads = driver.find_elements(By.CLASS_NAME, "title")
     df = pd.DataFrame(columns=["text", "label"])
@@ -41,10 +61,9 @@ def scrape(opt):
                     multiquote.click()
                     
         driver.back()
-        timeout = 3
         try:
             element_present = EC.presence_of_element_located((By.ID, 'threadlist'))
-            WebDriverWait(driver, timeout).until(element_present)
+            WebDriverWait(driver, 3).until(element_present)
         except TimeoutException:
             print("Timed out waiting for page to load")
             quit()
@@ -57,6 +76,10 @@ def main():
     parser.add_argument("-password", default=None)
     
     opt = parser.parse_args()
+    
+    if not all([opt.username, opt.password]):
+        print("[ERROR] username and password are required arguments")
+        quit()
     
     scrape(opt)
     
