@@ -25,11 +25,19 @@ def scrape(opt):
     username_box.send_keys(opt.username)
     
     password_box = driver.find_element(By.NAME, "vb_login_password")
+    password_focus = driver.find_element(By.NAME, "vb_login_password_hint")
+    password_focus.click()
     password_box.send_keys(opt.password)
     
     log_in_button = driver.find_element(By.CLASS_NAME, "loginbutton")
     log_in_button.click()
-        
+    
+    # wait for redirect
+    time.sleep(5)
+    
+    profile_button = driver.find_element(By.CLASS_NAME, "welcomelink").find_element(By.TAG_NAME, "a")
+    profile_button.click()
+    
     driver.switch_to.new_window("tab")
     driver.get("https://www.mafiauniverse.com/forums/forums/6-Automated-Games")
     
@@ -42,6 +50,12 @@ def scrape(opt):
         thread = threads[i]
         thread.click()
         
+        try:
+            element_present = EC.presence_of_element_located((By.ID, 'postlist'))
+            WebDriverWait(driver, 3).until(element_present)
+        except TimeoutException:
+            print("Timed out waiting for page to load")
+            quit()
         mod_name = driver.find_element(By.CLASS_NAME, "postbitlegacy").find_element(By.CLASS_NAME, "username").text
             
         page = 0
