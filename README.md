@@ -32,10 +32,10 @@ The post-generation model incorporates the macroread model but has the additiona
 
 ### Fetch Data
 
-Navigate to the `fetch-data` folder and use the username and password from your account as arguments to run `fetch-mu.py` as follows.
+Navigate to the `fetch-data` folder and use the username and password from your [Mafia Universe](https://www.mafiauniverse.com/forums/) account as arguments to run `fetch-mu.py` as follows.
 
 ```bash
-python fetch-mu.py -username <your_username> -password <your_password> 
+python fetch-mu.py -username [your_username] -password [your_password] 
 ```
 
 _Note: A [Mafia Universe](https://www.mafiauniverse.com/forums/) account is required to fetch data. If you do not have an account, you can register one for free._
