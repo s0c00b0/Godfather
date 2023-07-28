@@ -16,11 +16,11 @@ For more information on Mafia, visit the [MafiaUniverse Wiki](https://www.mafiau
 
 The project features three models: microread, macroread, and post-generation.
 
-The microread model uses a single post in the thread to make a read on the player who posted it. This model is the simplest among the three as the task is essentially a variant of text classification, and utilizes word embeddings from the [spaCy](https://spacy.io/) library combined with a gradient-boosting classifier model. However, most microreads are likely inaccurate, since there is only so much information that can be derived from a single post without context. __This model is in the process of being implemented.__
+The microread model uses a single post in the thread to make a read on the player who posted it. This model is the simplest among the three as the task is essentially a variant of text classification, and utilizes word embeddings from the [spaCy](https://spacy.io/) library combined with a gradient-boosting classifier model. However, most microreads are likely inaccurate, since there is only so much information that can be derived from a single post without context. *__This model is in the process of being implemented.__*
 
-The macroread model reads through the entire thread and generates reads for all the players in the game. This model will use an architecture similar to that used by OpenAI researchers in the paper [Recursively Summarizing Books with Human Feedback](https://arxiv.org/abs/2109.10862). __This model has not yet been implemented.__
+The macroread model reads through the entire thread and generates reads for all the players in the game. This model will use an architecture similar to that used by OpenAI researchers in the paper [Recursively Summarizing Books with Human Feedback](https://arxiv.org/abs/2109.10862). *__This model has not yet been implemented.__*
 
-The post-generation model incorporates the macroread model but has the additional feature of generating its own natural-language posts that can articulate its reads to others similar to a real human player. This model will use the previous macroread model, as well as a text-to-text transformer similar to that from the paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762). __This model has not yet been implemented.__
+The post-generation model incorporates the macroread model but has the additional feature of generating its own natural-language posts that can articulate its reads to others similar to a real human player. This model will use the previous macroread model, as well as a text-to-text transformer similar to that from the paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762). *__This model has not yet been implemented.__*
 
 ### Data
 
