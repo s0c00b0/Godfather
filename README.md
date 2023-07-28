@@ -12,6 +12,10 @@ For more information on Mafia, visit the [MafiaUniverse Wiki](https://www.mafiau
 
 ## Features
 
+### Data
+
+The data used to train the models is scraped from automated [Mafia Universe](https://www.mafiauniverse.com/forums/) games using the [Selenium](https://www.selenium.dev/) library into a `.txt` file. The `.txt` file is then preprocessed individually by each of the models into an acceptable input format.
+
 ### Models
 
 The project features three models: microread, macroread, and post-generation.
@@ -21,7 +25,3 @@ The microread model uses a single post in the thread to make a read on the playe
 The macroread model reads through the entire thread and generates reads for all the players in the game. This model will use an architecture similar to that used by OpenAI researchers in the paper [Recursively Summarizing Books with Human Feedback](https://arxiv.org/abs/2109.10862). *__This model has not yet been implemented.__*
 
 The post-generation model incorporates the macroread model but has the additional feature of generating its own natural-language posts that can articulate its reads to others similar to a real human player. This model will use the previous macroread model, as well as a text-to-text transformer similar to that from the paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762). *__This model has not yet been implemented.__*
-
-### Data
-
-The data used to train the models is scraped from automated [Mafia Universe](https://www.mafiauniverse.com/forums/) games using the [Selenium](https://www.selenium.dev/) library. It is then preprocessed into an acceptable input format for each of the models.
