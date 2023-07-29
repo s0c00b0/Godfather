@@ -28,7 +28,9 @@ def preprocess_posts(posts):
     
     game_postcount = 0
     for post in posts:
-        author = ((re.findall("\[QUOTE=.*?\]", post, flags=re.IGNORECASE))[0])[7:-1]
+        print(post)
+        print("------------")
+        author = ((re.findall("\[QUOTE.*?\]", post, flags=re.IGNORECASE))[0])[7:-1]
         semicolon = author.find(";")
         author = author[:semicolon]
         
@@ -76,12 +78,16 @@ def load_data(opt):
         
         current_post = current_post + line
         
-        nested_quotes += len(re.findall("\[QUOTE=.*?\]", line, flags=re.IGNORECASE))
+        nested_quotes += len(re.findall("\[QUOTE.*?\]", line, flags=re.IGNORECASE))
         nested_quotes -= len(re.findall("\[/QUOTE\]", line, flags=re.IGNORECASE))
         
         if nested_quotes == 0:
             posts.append(current_post)
             current_post = ""
+        elif nested_quotes < 0:
+            current_post = posts[-1] + current_post
+            nested_quotes *= -1
+            posts = posts[:-1]
     
     return posts
 

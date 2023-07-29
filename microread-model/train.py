@@ -15,12 +15,9 @@ def generate_model(text_array, label_array, opt):
     embed = np.array([nlp(text).vector for text in text_array])
     X_train, X_test, y_train, y_test = train_test_split(embed, label_array)
     
-    model = XGBClassifier(n_estimators = opt.n_estimators, learning_rate = opt.learning_rate,
-                            use_label_encoder=False, eval_metric=log_loss)
+    model = XGBClassifier(n_estimators = opt.n_estimators, learning_rate = opt.learning_rate, eval_metric=log_loss)
     
-    model.fit(X_train, y_train,
-                early_stopping_rounds = opt.early_stopping_rounds,
-                eval_set = [(X_test, y_test)])
+    model.fit(X_train, y_train, early_stopping_rounds = opt.early_stopping_rounds, eval_set = [(X_test, y_test)])
     
     prediction = model.predict(X_test)
     print('[INFO] final accuracy of model: ' + str(accuracy_score(prediction, y_test)))

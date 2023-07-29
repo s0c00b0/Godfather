@@ -65,13 +65,21 @@ def scrape(opt):
         except TimeoutException:
             print("Timed out waiting for page to load")
             quit()
+        
+        status = driver.find_element(By.CLASS_NAME, "richPrefix")
+        if not status.text == "Completed":
+            driver.get(link)
+            threads = driver.find_elements(By.CLASS_NAME, "title")
+            print("[INFO] game " + str(i + 1) + " is in-progress")
+            continue
+        
         mod_name = driver.find_element(By.CLASS_NAME, "postbitlegacy").find_element(By.CLASS_NAME, "username").text
             
         page = 1
         end_page = int(driver.find_element(By.CLASS_NAME, "pagination_top").find_element(By.CLASS_NAME, "popupctrl").text[10:])
         base_url = driver.current_url
 
-        alignmentText = ""
+        # alignmentText = ""
 
         while not page == end_page:
             time.sleep(1)
@@ -134,7 +142,7 @@ def scrape(opt):
                 prev_next[0].click()
             
         driver.get(link)
-        file.write(alignmentText + "\n")
+        # file.write(alignmentText + "\n")
         # file.write("END_GAME_HERE\n")
         try:
             element_present = EC.presence_of_element_located((By.ID, 'threadlist'))
