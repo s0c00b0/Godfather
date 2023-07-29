@@ -50,7 +50,7 @@ def scrape(opt):
 
     threads = driver.find_elements(By.CLASS_NAME, "title")
 
-    file = open("data.txt", "w", encoding="utf-8")
+    file = open(opt.save_path, "w", encoding="utf-8")
 
     for i in range(len(threads)):
         thread = threads[i]
@@ -82,19 +82,19 @@ def scrape(opt):
                 elif username == BOT_NAME:
                     title = post.find_element(By.CLASS_NAME, "bbc_title").text
                     if title == "Game Over":
-                        content = post.find_element(By.CLASS_NAME, "postcontent")
-                        rands = content.find_elements(By.CLASS_NAME, "profile-block")[2].find_element(By.TAG_NAME, "div")
-                        players = rands.find_elements(By.TAG_NAME, "span")
-                        alignmentText = "[ALIGNMENT]\n"
-                        for player in players:
-                            if player.getCssValue("color") == "#339933":
-                                alignmentText += "[" + player.text + "=town]\n"
-                            else:
-                                alignmentText += "[" + player.text + "=scum]\n"
-                        alignmentText += "[/ALIGNMENT]"
-                        # post.find_element(By.CLASS_NAME, "multiquote").click()
+                        # content = post.find_element(By.CLASS_NAME, "postcontent")
+                        # rands = content.find_elements(By.CLASS_NAME, "profile-block")[2].find_element(By.TAG_NAME, "div")
+                        # players = rands.find_elements(By.TAG_NAME, "span")
+                        # alignmentText = "[ALIGNMENT]\n"
+                        # for player in players:
+                        #     if player.getCssValue("color") == "#339933":
+                        #         alignmentText += "[" + player.text + "=town]\n"
+                        #     else:
+                        #         alignmentText += "[" + player.text + "=scum]\n"
+                        # alignmentText += "[/ALIGNMENT]"
+                        post.find_element(By.CLASS_NAME, "multiquote").click()
                         page = end_page - 1
-                        print("Done")
+                        print("[INFO] game " + str(i + 1) + " complete")
                         break
                 else:
                     multiquote = post.find_element(By.CLASS_NAME, "multiquote")
@@ -132,7 +132,7 @@ def scrape(opt):
             
         driver.get(link)
         file.write(alignmentText + "\n")
-        file.write("END_GAME_HERE\n")
+        # file.write("END_GAME_HERE\n")
         try:
             element_present = EC.presence_of_element_located((By.ID, 'threadlist'))
             WebDriverWait(driver, 3).until(element_present)
@@ -147,12 +147,16 @@ def main():
     
     parser.add_argument("-username", default=None)
     parser.add_argument("-password", default=None)
+    parser.add_argument("-save_path", default="data.txt")
     
     opt = parser.parse_args()
     
     if not all([opt.username, opt.password]):
         print("[ERROR] username and password are required arguments")
         quit()
+    
+    if not opt.save_path:
+        print("[INFO] save_path not specified, saving to data.txt in current directory")
     
     scrape(opt)
     
