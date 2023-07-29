@@ -43,8 +43,7 @@ def save_model(model, opt):
     if not os.path.exists(opt.model_path):
         os.mkdirs(opt.model_path)
     
-    saved_model = os.path.join(opt.model_path, "microread_model.pkl")
-    pickle.dump(model, open(opt.model_pat, "wb"))
+    pickle.dump(model, open(opt.model_path, "wb"))
 
 def main():
     parser = argparse.ArgumentParser()
@@ -52,10 +51,17 @@ def main():
     parser.add_argument("-n_estimators", type=int, default=1000)
     parser.add_argument("-learning_rate", type=float, default=0.05)
     parser.add_argument("-early_stopping_rounds", type=int, default=10)
-    parser.add_argument("-model_path", default=None)
+    parser.add_argument("-model_path", default="microread_model.pkl")
     parser.add_argument("-data_path", default=None)
     
     opt = parser.parse_args()
+
+    if not opt.data_path:
+        print("[ERROR] data_path is a required argument")
+        quit()
+        
+    if not opt.model_path:
+        print("[INFO] model_path not specified, saving model as microread_model.pkl in current directory")
 
     print("[INFO] loading training data...")
     text_array, label_array = load_training_data(opt)

@@ -50,7 +50,10 @@ def scrape(opt):
 
     threads = driver.find_elements(By.CLASS_NAME, "title")
 
-    file = open(opt.save_path, "w", encoding="utf-8")
+    if not os.path.exists(opt.save_path):
+        os.makedirs(opt.save_path)
+        
+    file = open(os.path.join(opt.save_path, "data.txt"), "w", encoding="utf-8")
 
     for i in range(len(threads)):
         thread = threads[i]
@@ -147,7 +150,7 @@ def main():
     
     parser.add_argument("-username", default=None)
     parser.add_argument("-password", default=None)
-    parser.add_argument("-save_path", default="data.txt")
+    parser.add_argument("-save_path", default=".")
     
     opt = parser.parse_args()
     
