@@ -33,7 +33,7 @@ def preprocess_posts(posts):
         if author == "Mafia Host":
             rands = (re.findall("\[BOX=Rands\].*?\[/BOX\]", post))[0]
             alignments = re.findall("\[COLOR=#[0-9]{6}\]\[B\].*?\[/B\]\[/COLOR\] (.*?)\[SPOILER\]", rands)
-            conversion = {True: True, False: False}
+            conversion = {}
             
             for alignment in alignments:
                 name = (re.findall("\[B\].*?\[/B\]", alignment))[3:-3]
