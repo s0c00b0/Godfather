@@ -81,12 +81,16 @@ def load_data(opt):
         nested_quotes += len(re.findall("\[QUOTE.*?\]", line, flags=re.IGNORECASE))
         nested_quotes -= len(re.findall("\[/QUOTE\]", line, flags=re.IGNORECASE))
         
-        if nested_quotes == 0:
+        if nested_quotes == 0 and line.endswith("[/QUOTE]"):
             posts.append(current_post)
             current_post = ""
         elif nested_quotes < 0:
             current_post = posts[-1] + current_post
-            nested_quotes *= -1
+            nested_quotes = 0
+            posts = posts[:-1]
+        else:
+            current_post = posts[-1] + current_post
+            nested_quotes += 1
             posts = posts[:-1]
     
     return posts
