@@ -28,8 +28,6 @@ def preprocess_posts(posts):
     
     game_postcount = 0
     for post in posts:
-        print(post)
-        print("------------")
         author = ((re.findall("\[QUOTE.*?\]", post, flags=re.IGNORECASE))[0])[7:-1]
         semicolon = author.find(";")
         author = author[:semicolon]
@@ -44,6 +42,10 @@ def preprocess_posts(posts):
                 town = (alignment[8:14] == "339933")
                 
                 conversion[name] = town
+            
+            subs = re.findall("\[B\]D.:\[/B\] \[B\](.*?)\[/B\] subbed in for \[B\](.*?)\[/B\]", post)         
+            for inPlayer, outPlayer in subs:
+                conversion[outPlayer] = conversion[inPlayer]
             
             for i in range(game_postcount):
                 df.iloc[-1-i].label = "Town" if conversion[df.iloc[-1-i].label] else "Mafia"
@@ -81,14 +83,14 @@ def load_data(opt):
         nested_quotes += len(re.findall("\[QUOTE.*?\]", line, flags=re.IGNORECASE))
         nested_quotes -= len(re.findall("\[/QUOTE\]", line, flags=re.IGNORECASE))
         
-        if nested_quotes == 0 and line.endswith("[/QUOTE]"):
+        if nested_quotes == 0 and line.endswith("[/QUOTE]\n"):
             posts.append(current_post)
             current_post = ""
         elif nested_quotes < 0:
             current_post = posts[-1] + current_post
             nested_quotes = 0
             posts = posts[:-1]
-        else:
+        elif nested_quotes == 0:
             current_post = posts[-1] + current_post
             nested_quotes += 1
             posts = posts[:-1]
