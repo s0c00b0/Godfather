@@ -20,8 +20,6 @@ def scrape(opt):
     driver = webdriver.Chrome(options=op)
     driver.get("https://www.mafiauniverse.com/forums/")
     
-    window1 = driver.current_window_handle
-    
     log_in = driver.find_element(By.CLASS_NAME, "login-window")
     log_in.click()
     
@@ -39,14 +37,8 @@ def scrape(opt):
     # wait for redirect
     time.sleep(5)
     
-    profile_button = driver.find_element(By.CLASS_NAME, "welcomelink").find_element(By.TAG_NAME, "a")
-    profile_button.click()
-    
-    driver.switch_to.new_window("tab")
     link = "https://www.mafiauniverse.com/forums/forums/6-Automated-Games"
     driver.get(link)
-    
-    window2 = driver.current_window_handle
 
     threads = driver.find_elements(By.CLASS_NAME, "title")
 
@@ -66,11 +58,32 @@ def scrape(opt):
             print("Timed out waiting for page to load")
             quit()
         
+        locked = driver.find_element(By.CLASS_NAME, "newcontent_textcontrol")
+        if locked.text.strip() == "Closed Thread":
+            driver.get(link)
+            time.sleep(1)
+            try:
+                element_present = EC.presence_of_element_located((By.ID, 'threadlist'))
+                WebDriverWait(driver, 3).until(element_present)
+            except TimeoutException:
+                print("Timed out waiting for page to load")
+                quit()
+            threads = driver.find_elements(By.CLASS_NAME, "title")
+            print("[INFO] game " + str(i + 1) + " is locked, skipped")
+            continue
+        
         status = driver.find_element(By.CLASS_NAME, "richPrefix")
         if not status.text == "Completed":
             driver.get(link)
+            time.sleep(1)
+            try:
+                element_present = EC.presence_of_element_located((By.ID, 'threadlist'))
+                WebDriverWait(driver, 3).until(element_present)
+            except TimeoutException:
+                print("Timed out waiting for page to load")
+                quit()
             threads = driver.find_elements(By.CLASS_NAME, "title")
-            print("[INFO] game " + str(i + 1) + " is in-progress")
+            print("[INFO] game " + str(i + 1) + " is in-progress, skipped")
             continue
         
         mod_name = driver.find_element(By.CLASS_NAME, "postbitlegacy").find_element(By.CLASS_NAME, "username").text
@@ -79,9 +92,7 @@ def scrape(opt):
         end_page = int(driver.find_element(By.CLASS_NAME, "pagination_top").find_element(By.CLASS_NAME, "popupctrl").text[10:])
         base_url = driver.current_url
 
-        # alignmentText = ""
-
-        while not page == end_page:
+        while page <= end_page:
             time.sleep(1)
             posts = driver.find_elements(By.CLASS_NAME, "postbitlegacy")
             for post in posts:
@@ -93,46 +104,23 @@ def scrape(opt):
                 elif username == BOT_NAME:
                     title = post.find_element(By.CLASS_NAME, "bbc_title").text
                     if title == "Game Over":
-                        # content = post.find_element(By.CLASS_NAME, "postcontent")
-                        # rands = content.find_elements(By.CLASS_NAME, "profile-block")[2].find_element(By.TAG_NAME, "div")
-                        # players = rands.find_elements(By.TAG_NAME, "span")
-                        # alignmentText = "[ALIGNMENT]\n"
-                        # for player in players:
-                        #     if player.getCssValue("color") == "#339933":
-                        #         alignmentText += "[" + player.text + "=town]\n"
-                        #     else:
-                        #         alignmentText += "[" + player.text + "=scum]\n"
-                        # alignmentText += "[/ALIGNMENT]"
-                        post.find_element(By.CLASS_NAME, "multiquote").click()
-                        page = end_page - 1
+                        post.find_element(By.CLASS_NAME, "newreply").click()
+                        time.sleep(0.5)
+                        textbox = driver.find_element(By.ID, "quick_reply").find_element(By.CLASS_NAME, "cke_source")
+                        data = textbox.get_attribute("value")
+                        file.write(data)
+                        file.write("--END_QUOTE_SEPARATOR--\n")
+                        page = end_page
                         print("[INFO] game " + str(i + 1) + " complete")
                         break
                 else:
-                    multiquote = post.find_element(By.CLASS_NAME, "multiquote")
-                    multiquote.click()
-            driver.switch_to.window(window1)
-            driver.refresh()
-            time.sleep(1)
-            try:
-                element_present = EC.presence_of_element_located((By.ID, 'multiquote_more_new'))
-                WebDriverWait(driver, 5).until(element_present)
-            except TimeoutException:
-                print("Timed out waiting for page to load")
-                quit()
-            driver.find_element(By.ID, "multiquote_more_new").click()
-            textarea = driver.find_element(By.CLASS_NAME, "cke_enable_context_menu")
-            textarea.click()
-            time.sleep(1)
-            
-            data = textarea.get_attribute("value")
-            file.write(data + "\n")
-            textarea.clear()
-            driver.find_element(By.ID, "clear-mqs").click()
-            time.sleep(1)
-            Alert(driver).accept()
-            time.sleep(1)
-            
-            driver.switch_to.window(window2)
+                    post.find_element(By.CLASS_NAME, "newreply").click()
+                    time.sleep(0.5)
+                    textbox = driver.find_element(By.ID, "quick_reply").find_element(By.CLASS_NAME, "cke_source")
+                    data = textbox.get_attribute("value")
+                    file.write(data)
+                    file.write("--END_QUOTE_SEPARATOR--\n")
+                    
             page += 1
             prev_next = driver.find_element(By.ID, "pagination_top").find_elements(By.CLASS_NAME, "prev_next")
             
@@ -142,8 +130,7 @@ def scrape(opt):
                 prev_next[0].click()
             
         driver.get(link)
-        # file.write(alignmentText + "\n")
-        # file.write("END_GAME_HERE\n")
+        time.sleep(1)
         try:
             element_present = EC.presence_of_element_located((By.ID, 'threadlist'))
             WebDriverWait(driver, 3).until(element_present)

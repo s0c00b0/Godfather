@@ -4,7 +4,32 @@ import argparse
 import os
 import re
 import pandas as pd
+
+def strip_quotes(post):
+    quotes = re.findall('\[/?QUOTE.*?\]', post, flags=re.DOTALL | re.IGNORECASE)
+    currentRegex = ""
+    nest_count = 0
     
+    for quote in quotes:
+        nest_count += -1 if quote[1] == '/' else 1
+        quote = re.sub('\[', '\\\[', quote)
+        quote = re.sub('\]', '\\\]', quote)
+        currentRegex += quote
+        
+        if nest_count > 0:
+            currentRegex += '.*?'
+        elif nest_count == 0:
+            post = re.sub(currentRegex, '', post, flags=re.DOTALL | re.IGNORECASE)
+            currentRegex = ""
+        else:
+            currentRegex = ""
+            nest_count = 0
+            
+    if nest_count != 0:
+        return ""
+    
+    return post
+
 def preprocess_post(post):
     for i in range(0, len(post)):
         if post[i] == ']':
@@ -14,7 +39,7 @@ def preprocess_post(post):
         if post[-1 * i] == '[':
             post = post[:-1 * i]
             break
-    post = re.sub('\[QUOTE.*?\].*?\[/QUOTE\]', '', post, flags=re.DOTALL | re.IGNORECASE)
+    post = strip_quotes(post)
     post = re.sub('\[IMG\].*?\[/IMG\]', '', post, flags=re.DOTALL | re.IGNORECASE)
     post = re.sub('\[VIDEO.*?\].*?\[/VIDEO\]', '', post, flags=re.DOTALL | re.IGNORECASE)
     post = re.sub('\[V\]', 'VOTE: ', post, flags=re.IGNORECASE)
@@ -48,7 +73,7 @@ def preprocess_posts(posts):
                 conversion[outPlayer] = conversion[inPlayer]
             
             for i in range(game_postcount):
-                df.iloc[-1-i].label = "Town" if conversion[df.iloc[-1-i].label] else "Mafia"
+                df.iloc[-1-i].label = 0 if conversion[df.iloc[-1-i].label] else 1
             
             game_postcount = 0
                 
@@ -69,32 +94,14 @@ def load_data(opt):
     
     posts = []
     current_post = ""
-    nested_quotes = 0
     
     for line in f:
-        if line == "\n" and current_post == "":
-            continue
-        
-        if line == "END_GAME_HERE\n":
-            continue
-        
-        current_post = current_post + line
-        
-        nested_quotes += len(re.findall("\[QUOTE.*?\]", line, flags=re.IGNORECASE))
-        nested_quotes -= len(re.findall("\[/QUOTE\]", line, flags=re.IGNORECASE))
-        
-        if nested_quotes == 0 and line.endswith("[/QUOTE]\n"):
+        if line == "--END_QUOTE_SEPARATOR--\n":
             posts.append(current_post)
             current_post = ""
-        elif nested_quotes < 0:
-            current_post = posts[-1] + current_post
-            nested_quotes = 0
-            posts = posts[:-1]
-        elif nested_quotes == 0:
-            current_post = posts[-1] + current_post
-            nested_quotes += 1
-            posts = posts[:-1]
-    
+        else:
+            current_post = current_post + line
+            
     return posts
 
 def save_data(df, opt):
@@ -119,7 +126,7 @@ def main():
     print("[INFO] loading data...")
     posts = load_data(opt)
     print("[INFO] loading complete")
-    print("[INFO] preprocessing posts...")
+    print("[INFO] preprocessing " + str(len(posts)) + " posts...")
     df = preprocess_posts(posts)
     print("[INFO] preprocessing complete")
     print("[INFO] saving data to " + os.path.join(opt.save_path, "data.csv"))
