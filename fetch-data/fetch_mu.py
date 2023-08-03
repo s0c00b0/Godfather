@@ -105,7 +105,7 @@ def scrape(opt):
                     title = post.find_element(By.CLASS_NAME, "bbc_title").text
                     if title == "Game Over":
                         post.find_element(By.CLASS_NAME, "newreply").click()
-                        time.sleep(0.5)
+                        time.sleep(0.25)
                         textbox = driver.find_element(By.ID, "quick_reply").find_element(By.CLASS_NAME, "cke_source")
                         data = textbox.get_attribute("value")
                         file.write(data)
@@ -115,7 +115,7 @@ def scrape(opt):
                         break
                 else:
                     post.find_element(By.CLASS_NAME, "newreply").click()
-                    time.sleep(0.5)
+                    time.sleep(0.25)
                     textbox = driver.find_element(By.ID, "quick_reply").find_element(By.CLASS_NAME, "cke_source")
                     data = textbox.get_attribute("value")
                     file.write(data)

@@ -71,7 +71,7 @@ def main():
     parser = argparse.ArgumentParser()
     
     parser.add_argument("-n_estimators", type=int, default=1000)
-    parser.add_argument("-learning_rate", type=float, default=0.05)
+    parser.add_argument("-learning_rate", type=float, default=0.025)
     parser.add_argument("-early_stopping_rounds", type=int, default=10)
     parser.add_argument("-model_path", default=".")
     parser.add_argument("-data_path", default=None)

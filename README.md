@@ -20,22 +20,8 @@ The data used to train the models is scraped from automated [Mafia Universe](htt
 
 The project features three models: microread, macroread, and post-generation.
 
-The microread model uses a single post in the thread to make a read on the player who posted it. This model is the simplest among the three as the task is essentially a variant of text classification, and utilizes word embeddings from the [spaCy](https://spacy.io/) library combined with a [XGBoost](https://xgboost.readthedocs.io/en/stable/) gradient-boosting classifier model. However, most microreads are likely inaccurate, since there is only so much information that can be derived from a single post without context. *__This model is in the process of being implemented.__*
+The microread model uses a single post in the thread to make a read on the player who posted it. This model is the simplest among the three as the task is essentially a variant of text classification, and utilizes word embeddings from the [spaCy](https://spacy.io/) library combined with a [XGBoost](https://xgboost.readthedocs.io/en/stable/) gradient-boosting classifier model. However, most microreads are likely inaccurate, since there is only so much information that can be derived from a single post without context. 
 
-The macroread model reads through the entire thread and generates reads for all the players in the game. This task seems to be a variant of the text summarization task, so this model uses an architecture modified from the paper [Recursively Summarizing Books with Human Feedback](https://arxiv.org/abs/2109.10862). *__This model has not yet been implemented.__*
+The macroread model reads through the entire thread and generates reads for all the players in the game. This task seems to be a variant of the text summarization task, so this model uses an architecture modified from the paper [Recursively Summarizing Books with Human Feedback](https://arxiv.org/abs/2109.10862). *__This model is currently being implemented.__*
 
 The post-generation model incorporates the macroread model but has the additional feature of generating its own natural-language posts that can articulate its reads to others similar to a real human player. This model uses the previous macroread model, as well as a text-to-text transformer modified from the paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762) which is the basis for many text-generation AI programs such as ChatGPT. *__This model has not yet been implemented.__*
-
-## Usage
-
-*__This section will be updated as features are implemented.__*
-
-### Fetch Data
-
-Navigate to the `fetch-data` folder and use the username and password from your [Mafia Universe](https://www.mafiauniverse.com/forums/) account as arguments to run `fetch-mu.py` as follows.
-
-```bash
-python fetch-mu.py -username [your_username] -password [your_password] 
-```
-
-_Note: A [Mafia Universe](https://www.mafiauniverse.com/forums/) account is required to fetch data. If you do not have an account, you can register one for free._

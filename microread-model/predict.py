@@ -4,17 +4,17 @@ import argparse
 import os
 import pickle
 import spacy
-from preprocess import preprocess_post
+from preprocess import preprocess_post, load_data
 
-def predict(post, model):
-    post = preprocess_post(post)
+def predict(posts, model):
     nlp = spacy.load('en_core_web_lg')
-    prediction = model.predict_proba([nlp(post).vector])
+    prediction = model.predict_proba([nlp(post).vector for post in posts])
     
-    if (prediction[0][0] > prediction[0][1]):
-        print('[OUTPUT] Alignment prediction is town with probability ' + str(prediction[0][0]))
-    else:
-        print('[OUTPUT] Alignment prediction is anti-town with probability ' + str(prediction[0][1]))
+    for i in range(len(prediction)):
+        if (prediction[i][0] > prediction[i][1]):
+            print('[OUTPUT] Alignment prediction for post ' + i + ' is town with probability ' + str(prediction[0][0]))
+        else:
+            print('[OUTPUT] Alignment prediction for post ' + i + ' is anti-town with probability ' + str(prediction[0][1]))
         
 def load_model(opt):
     if not os.path.exists(opt.model_path):
@@ -45,12 +45,8 @@ def main():
         print("[ERROR] prediction input does not exist")
         quit()
 
-    f = open(opt.predict_path, "r")
-    post = ""
-    for line in f:
-        post += line
-    
-    predict(post, model)
+    posts = [preprocess_post(post) for post in load_data(opt.predict_path)]
+    predict(posts, model)
 
 if __name__ == '__main__':
     main()

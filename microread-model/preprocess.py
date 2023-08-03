@@ -59,7 +59,7 @@ def preprocess_posts(posts):
         
         if author == "Mafia Host":
             rands = (re.findall("\[BOX=Rands\].*?\[/BOX\]", post, flags=re.DOTALL | re.IGNORECASE))[0]
-            alignments = re.findall("\[COLOR=\#.{6}\]\[B\].*?\[/B\]\[/COLOR\] \(.*?\)\[SPOILER\]", rands, flags=re.DOTALL | re.IGNORECASE)
+            alignments = re.findall("\[COLOR=\#.{6}\]\[B\].*?\[/B\]\[/COLOR\] \(.*?\)", rands, flags=re.DOTALL | re.IGNORECASE)
             conversion = {}
             
             for alignment in alignments:
@@ -68,7 +68,7 @@ def preprocess_posts(posts):
                 
                 conversion[name] = town
             
-            subs = re.findall("\[B\]D.:\[/B\] \[B\](.*?)\[/B\] subbed in for \[B\](.*?)\[/B\]", post)         
+            subs = re.findall("\[B\].*?\[/B\] \[B\](.*?)\[/B\] subbed in for \[B\](.*?)\[/B\]", post)         
             for inPlayer, outPlayer in subs:
                 conversion[outPlayer] = conversion[inPlayer]
             
